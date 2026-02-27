@@ -121,6 +121,7 @@ fn save_or_print(mgr: &TodoManager, path: &str) {
     }
 }
 
+#[derive(PartialEq, Debug)]
 enum Command {
     Add(String),
     Delete(usize),
@@ -196,5 +197,148 @@ fn main() {
             }
             Err(msg) => println!("{}", msg),
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    fn temp_test_file(name: &str) -> std::path::PathBuf {
+        let mut p = std::env::temp_dir();
+        let stamp = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap()
+            .as_nanos();
+        p.push(format!("daily_planner_{}_{}.json", name, stamp));
+        p
+    }
+    use super::*;
+
+    #[test]
+    fn parse_id_returns_ok_for_number() {
+        let result = parse_id(Some("42"));
+        assert_eq!(result, Ok(42));
+    }
+
+    #[test]
+    fn parse_id_errors_for_missing_arg() {
+        let result = parse_id(None);
+        assert_eq!(result, Err("id is required"));
+    }
+
+    #[test]
+    fn parse_id_errors_for_non_numeric_arg() {
+        let result = parse_id(Some("abc"));
+        assert_eq!(result, Err("id must be a number"));
+    }
+
+    #[test]
+    fn parse_command_add_returns_add_variant() {
+        let cmd = parse_command("add buy milk");
+        match cmd {
+            Ok(Command::Add(title)) => assert_eq!(title, "buy milk"),
+            _ => panic!("expected Command::Add"),
+        }
+    }
+
+    #[test]
+    fn parse_command_delete_returns_delete_variant() {
+        let cmd = parse_command("delete 7");
+        match cmd {
+            Ok(Command::Delete(id)) => assert_eq!(id, 7),
+            _ => panic!("expected Command::Delete"),
+        }
+    }
+
+    #[test]
+    fn parse_command_unknown_returns_error() {
+        let cmd = parse_command("wat");
+        assert_eq!(cmd, Err("unknown command"));
+    }
+
+    #[test]
+    fn parse_command_add_missing_title_returns_error() {
+        let cmd = parse_command("add");
+        assert_eq!(cmd, Err("title is required"));
+    }
+
+    #[test]
+    fn parse_command_delete_non_numeric_id_returns_error() {
+        let cmd = parse_command("delete abc");
+        assert_eq!(cmd, Err("id must be a number"));
+    }
+
+    #[test]
+    fn add_todo_increments_id_and_stores_item() {
+        let mut mgr = TodoManager::new();
+        mgr.add_todo("first".to_string());
+        mgr.add_todo("second".to_string());
+
+        assert_eq!(mgr.todos.len(), 2);
+        assert_eq!(mgr.todos[0].id, 1);
+        assert_eq!(mgr.todos[1].id, 2);
+        assert_eq!(mgr.next_id, 3);
+    }
+
+    #[test]
+    fn delete_todo_reuses_deleted_id() {
+        let mut mgr = TodoManager::new();
+        mgr.add_todo("a".to_string()); // id 1
+        mgr.add_todo("b".to_string()); // id 2
+
+        assert!(mgr.delete_todo(1));
+        mgr.add_todo("c".to_string()); // should reuse id 1
+
+        let ids: Vec<usize> = mgr.todos.iter().map(|t| t.id).collect();
+        assert!(ids.contains(&1));
+        assert!(ids.contains(&2));
+    }
+
+    #[test]
+    fn complete_todo_marks_status_completed() {
+        let mut mgr = TodoManager::new();
+        mgr.add_todo("x".to_string());
+
+        assert!(mgr.complete_todo(1));
+        match mgr.todos[0].status {
+            TodoStatus::Completed => {}
+            _ => panic!("expected Completed"),
+        }
+    }
+
+    #[test]
+    fn save_and_load_round_trip_preserves_todos() {
+        let path = temp_test_file("round_trip");
+        let path_str = path.to_str().unwrap();
+
+        let mut mgr = TodoManager::new();
+        mgr.add_todo("one".to_string());
+        mgr.add_todo("two".to_string());
+        mgr.complete_todo(2);
+
+        mgr.save_to_file(path_str).unwrap();
+
+        let loaded = TodoManager::load_from_file(path_str);
+        assert_eq!(loaded.todos.len(), 2);
+        assert_eq!(
+            loaded.todos.iter().map(|t| t.id).collect::<Vec<_>>(),
+            vec![1, 2]
+        );
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn load_reconstructs_free_ids_from_gaps() {
+        let path = temp_test_file("free_id_trip");
+        let path_str = path.to_str().unwrap();
+
+        std::fs::write(path_str, r#"[{"id":2,"title":"only","status":"Pending"}]"#).unwrap();
+
+        let mut loaded = TodoManager::load_from_file(path_str);
+        loaded.add_todo("reuse".to_string());
+
+        let ids: Vec<usize> = loaded.todos.iter().map(|t| t.id).collect();
+        assert!(ids.contains(&1));
+        assert!(ids.contains(&2));
+        let _ = std::fs::remove_file(&path);
     }
 }
