@@ -14,51 +14,22 @@ A comprehensive multi-language, multi-platform todo ecosystem. Learn Rust, Go, J
 
 ### Phase 2: Backend Development (Go/Spring) ✨ **Current Phase**
 
-**Goal:** Build a simple command-line todo manager to understand Rust fundamentals.
-
-#### Core Learning Objectives:
-- **Ownership & Borrowing** - Master move semantics, references, and mutable borrowing
-- **Enums** - Use enums for type-safe state representation (TodoStatus)
-- **Structs** - Organize data with structs (TodoItem, TodoManager)
-- **File I/O** - Read and write to files for data persistence
-- **Collections** - Work with `Vec` to manage multiple todos
-
-#### Features to Build:
-- ✅ Add new todos
-- ✅ List all todos with status
-- ✅ Mark todos as complete
-- ✅ Delete todos
-- ✅ Persist data to JSON file
-- ✅ CLI menu interface
-
-#### Tech Stack:
-- **Language:** Rust (2021 edition)
-- **Dependencies:** serde, serde_json (for JSON serialization)
-- **Build Tool:** Cargo
-
 ---
 
-## 🎯 Getting Started
+## 🎯 Workspace Getting Started
 
-### Prerequisites
-- [Rust installed](https://rustup.rs/)
+This repository is organized as a multi-language monorepo.
 
-### Building
+- Rust-specific instructions: [rust-cli/README.md](rust-cli/README.md)
+- Backend phases (Go/Spring): create and use `go-api/` and `java-api/`
+- Frontend/mobile phases: `react-web/` and `android-app/`
+
+### Rust quick commands
 ```bash
 cd rust-cli
 cargo build
-```
-
-### Running
-```bash
-cd rust-cli
 cargo run
-```
-
-### Cleaning
-```bash
-cd rust-cli
-cargo clean
+cargo test
 ```
 
 ---
@@ -69,12 +40,17 @@ cargo clean
 daily_planner/
 ├── rust-cli/
 │   ├── Cargo.toml
+│   ├── README.md
 │   ├── src/
 │   │   ├── main.rs
 │   │   ├── cli.rs
 │   │   ├── manager.rs
 │   │   └── models.rs
 │   └── data/
+├── .github/
+│   └── workflows/
+│       ├── rust-cli-ci.yml
+│       └── rust-cli-release.yml
 ├── go-api/             # Phase 2A target
 ├── java-api/           # Phase 2B target
 ├── react-web/          # Phase 3 target
@@ -84,20 +60,20 @@ daily_planner/
 
 ---
 
-## 🎓 What You'll Learn
+## 🧩 Subproject Docs
 
-This project covers essential Rust concepts through hands-on implementation:
+- Rust CLI details (architecture, commands, test/release): [rust-cli/README.md](rust-cli/README.md)
 
-| Concept | Why It Matters |
-|---------|----------------|
-| **Ownership** | Rust's memory safety guarantee without a garbage collector |
-| **Borrowing** | Safe multi-reference patterns (& for immutable, &mut for mutable) |
-| **Structs** | Organizing related data together |
-| **Enums** | Type-safe alternatives to magic strings/numbers |
-| **Pattern Matching** | Safe, exhaustive conditional logic |
-| **File I/O** | Reading/writing persistent data |
-| **Error Handling** | Using `Result` and the `?` operator |
-| **Collections** | Managing groups of data with `Vec` |
+---
+
+## 🚢 Release Workflows
+
+- CI for Rust CLI: [.github/workflows/rust-cli-ci.yml](.github/workflows/rust-cli-ci.yml)
+- Tagged binary release: [.github/workflows/rust-cli-release.yml](.github/workflows/rust-cli-release.yml)
+
+Release tag format for Rust CLI binaries:
+
+- `rust-cli-v*` (example: `rust-cli-v0.1.0`)
 
 ---
 
