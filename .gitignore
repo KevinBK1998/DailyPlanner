@@ -1,8 +1,9 @@
 # Build
 /target/
+/rust-cli/target/
 
 # IDE
 .vscode/
 
-# Project Test Data
-/data
+# Rust app data
+/rust-cli/data/

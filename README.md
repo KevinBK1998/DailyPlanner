@@ -10,7 +10,9 @@ A comprehensive multi-language, multi-platform todo ecosystem. Learn Rust, Go, J
 
 ## 🚀 Learning Roadmap
 
-### Phase 1: Foundations (CLI + Core Concepts) ✨ **Current Phase**
+### Phase 1: Foundations (CLI + Core Concepts) ✅ **Completed**
+
+### Phase 2: Backend Development (Go/Spring) ✨ **Current Phase**
 
 **Goal:** Build a simple command-line todo manager to understand Rust fundamentals.
 
@@ -43,16 +45,19 @@ A comprehensive multi-language, multi-platform todo ecosystem. Learn Rust, Go, J
 
 ### Building
 ```bash
+cd rust-cli
 cargo build
 ```
 
 ### Running
 ```bash
+cd rust-cli
 cargo run
 ```
 
 ### Cleaning
 ```bash
+cd rust-cli
 cargo clean
 ```
 
@@ -62,10 +67,19 @@ cargo clean
 
 ```
 daily_planner/
-├── Cargo.toml          # Project manifest
-├── src/
-│   └── main.rs         # Application code
-└── README.md           # This file
+├── rust-cli/
+│   ├── Cargo.toml
+│   ├── src/
+│   │   ├── main.rs
+│   │   ├── cli.rs
+│   │   ├── manager.rs
+│   │   └── models.rs
+│   └── data/
+├── go-api/             # Phase 2A target
+├── java-api/           # Phase 2B target
+├── react-web/          # Phase 3 target
+├── android-app/        # Phase 4 target
+└── README.md
 ```
 
 ---
