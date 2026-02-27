@@ -3,3 +3,6 @@
 
 # IDE
 .vscode/
+
+# Project Test Data
+/data
