@@ -121,6 +121,64 @@ fn save_or_print(mgr: &TodoManager, path: &str) {
     }
 }
 
+enum Command {
+    Add(String),
+    Delete(usize),
+    Complete(usize),
+    List,
+    Exit,
+    Help,
+}
+
+fn parse_command(input: &str) -> Result<Command, &'static str> {
+    let parts: Vec<_> = input.trim().splitn(2, ' ').collect();
+    match parts[0] {
+        "add" => {
+            let title = parts.get(1).copied().ok_or("title is required")?;
+            Ok(Command::Add(title.to_string()))
+        }
+        "delete" => Ok(Command::Delete(parse_id(parts.get(1).copied())?)),
+        "complete" => Ok(Command::Complete(parse_id(parts.get(1).copied())?)),
+        "list" => Ok(Command::List),
+        "exit" => Ok(Command::Exit),
+        "help" => Ok(Command::Help),
+        _ => Err("unknown command"),
+    }
+}
+
+fn execute_command(cmd: Command, mgr: &mut TodoManager, path: &str) -> bool {
+    match cmd {
+        Command::Add(title) => {
+            mgr.add_todo(title);
+            save_or_print(mgr, path);
+            true
+        }
+        Command::Delete(id) => {
+            if !mgr.delete_todo(id) {
+                println!("no such id");
+            }
+            save_or_print(mgr, path);
+            true
+        }
+        Command::Complete(id) => {
+            if !mgr.complete_todo(id) {
+                println!("no such id");
+            }
+            save_or_print(mgr, path);
+            true
+        }
+        Command::List => {
+            mgr.list_todos();
+            true
+        }
+        Command::Help => {
+            println!("Commands: add <title>, complete <id>, delete <id>, list, help, exit");
+            true
+        }
+        Command::Exit => false,
+    }
+}
+
 fn main() {
     println!("Welcome to Daily Planner!");
     let path = "data/todos.json";
@@ -130,35 +188,13 @@ fn main() {
         io::stdout().flush().unwrap();
         let mut input = String::new();
         io::stdin().read_line(&mut input).unwrap();
-        let parts: Vec<_> = input.trim().splitn(2, ' ').collect();
-        match parts[0] {
-            "add" if parts.len() == 2 => {
-                mgr.add_todo(parts[1].to_string());
-                save_or_print(&mgr, path);
-            }
-            "delete" => match parse_id(parts.get(1).copied()) {
-                Ok(id) => {
-                    if !mgr.delete_todo(id) {
-                        println!("no such id");
-                    }
-                    save_or_print(&mgr, path);
+        match parse_command(&input) {
+            Ok(cmd) => {
+                if !execute_command(cmd, &mut mgr, path) {
+                    break;
                 }
-                Err(msg) => println!("{}", msg),
-            },
-            "complete" => match parse_id(parts.get(1).copied()) {
-                Ok(id) => {
-                    if !mgr.complete_todo(id) {
-                        println!("no such id");
-                    }
-                    save_or_print(&mgr, path);
-                }
-                Err(msg) => println!("{}", msg),
-            },
-            "list" => {
-                mgr.list_todos();
             }
-            "exit" => break,
-            _ => println!("Commands: add <title>, complete <id>, delete <id>, exit, list"),
+            Err(msg) => println!("{}", msg),
         }
     }
 }
