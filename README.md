@@ -20,8 +20,9 @@ A comprehensive multi-language, multi-platform todo ecosystem. Learn Rust, Go, J
 
 This repository is organized as a multi-language monorepo.
 
-- Rust-specific instructions: [rust-cli/README.md](rust-cli/README.md)
-- Backend phases (Go/Spring): create and use `go-api/` and `java-api/`
+- Rust CLI: [rust-cli/README.md](rust-cli/README.md)
+- Go REST API: [go-api/README.md](go-api/README.md)
+- Backend phases (Spring): `java-api/`
 - Frontend/mobile phases: `react-web/` and `android-app/`
 
 ### Rust quick commands
@@ -30,6 +31,13 @@ cd rust-cli
 cargo build
 cargo run
 cargo test
+```
+
+### Go quick commands
+```bash
+cd go-api
+go run ./cmd/main.go
+go test ./...
 ```
 
 ---
@@ -51,7 +59,7 @@ daily_planner/
 │   └── workflows/
 │       ├── rust-cli-ci.yml
 │       └── rust-cli-release.yml
-├── go-api/             # Phase 2A target
+├── go-api/             # Phase 2A ✨ current
 ├── java-api/           # Phase 2B target
 ├── react-web/          # Phase 3 target
 ├── android-app/        # Phase 4 target
@@ -63,6 +71,7 @@ daily_planner/
 ## 🧩 Subproject Docs
 
 - Rust CLI details (architecture, commands, test/release): [rust-cli/README.md](rust-cli/README.md)
+- Go REST API details (structure, endpoints, learning goals): [go-api/README.md](go-api/README.md)
 
 ---
 
@@ -84,19 +93,9 @@ Release tag format for Rust CLI binaries:
 #### 2A - Go REST API
 Build a lightweight backend to expose todos via HTTP endpoints.
 
-**Endpoints:**
-- `GET /tasks` - List all tasks
-- `POST /tasks` - Create a new task
-- `PUT /tasks/:id` - Update a task
-- `DELETE /tasks/:id` - Delete a task
+See [go-api/README.md](go-api/README.md) for full details, endpoints, and learning goals.
 
-**Learning Goals:**
-- Goroutines & concurrency patterns
-- JSON marshaling/unmarshaling
-- REST API design principles
-- HTTP routing and middleware
-
-**Tech:** Go, standard library (net/http), SQLite/Postgres driver
+**Tech:** Go, standard library (net/http), SQLite
 
 ---
 
