@@ -1,0 +1,15 @@
+meta {
+  name: Complete Task
+  type: http
+  seq: 5
+}
+
+put {
+  url: {{baseUrl}}/tasks/:id/complete
+  body: none
+  auth: none
+}
+
+params:path {
+  id: 1
+}

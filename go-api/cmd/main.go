@@ -17,6 +17,7 @@ func main() {
 		fmt.Fprintln(w, "OK")
 	})
 	http.HandleFunc("/tasks", handlers.HandleTasks(taskStore))
+	http.HandleFunc("/tasks/", handlers.HandleTasks(taskStore))
 
 	fmt.Println("Server starting on :8080")
 	http.ListenAndServe(":8080", nil)
