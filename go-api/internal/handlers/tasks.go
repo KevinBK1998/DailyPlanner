@@ -4,14 +4,12 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/KevinBK1998/dailyplanner/go-api/internal/models"
+	"github.com/KevinBK1998/dailyplanner/go-api/internal/store"
 )
 
-func HandleTasks(w http.ResponseWriter, r *http.Request) {
-	tasks := []models.Task{
-		{ID: 1, Title: "Learn Go", Status: "pending"},
-		{ID: 2, Title: "Build REST API", Status: "pending"},
+func HandleTasks(taskStore *store.TaskStore) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(taskStore.List())
 	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(tasks)
 }
