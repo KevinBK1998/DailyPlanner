@@ -9,9 +9,11 @@ import (
 )
 
 func main() {
-	taskStore := store.NewTaskStore()
-	taskStore.Add("Learn Go")
-	taskStore.Add("Build REST API")
+	taskStore, err := store.NewTaskStore()
+	if err != nil {
+		fmt.Printf("error creating task store: %v\n", err)
+		return
+	}
 
 	http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintln(w, "OK")

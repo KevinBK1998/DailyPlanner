@@ -3,7 +3,14 @@ package store
 import "testing"
 
 func TestAddAndList(t *testing.T) {
-	s := NewTaskStore()
+	s, err := NewTaskStore()
+	if err != nil {
+		t.Fatalf("failed to create TaskStore: %v", err)
+	}
+	defer s.tasks.Close()
+	if _, err := s.tasks.Exec("DELETE FROM tasks"); err != nil {
+		t.Fatalf("failed to clear tasks table: %v", err)
+	}
 	first := s.Add("First Task")
 	second := s.Add("Second Task")
 
@@ -22,7 +29,14 @@ func TestAddAndList(t *testing.T) {
 }
 
 func TestDeleteAndCompleteErrors(t *testing.T) {
-	s := NewTaskStore()
+	s, err := NewTaskStore()
+	if err != nil {
+		t.Fatalf("failed to create TaskStore: %v", err)
+	}
+	defer s.tasks.Close()
+	if _, err := s.tasks.Exec("DELETE FROM tasks"); err != nil {
+		t.Fatalf("failed to clear tasks table: %v", err)
+	}
 	task := s.Add("Only Task")
 
 	if err := s.Complete(task.ID); err != nil {

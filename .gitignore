@@ -7,3 +7,6 @@
 
 # Rust app data
 /rust-cli/data/
+
+# Go app data
+tasks.db

@@ -12,7 +12,13 @@ import (
 )
 
 func TestHandleTasks_CreateThenList(t *testing.T) {
-	s := store.NewTaskStore()
+	s, err := store.NewTaskStore()
+	if err != nil {
+		t.Fatalf("failed to create TaskStore: %v", err)
+	}
+	if err := s.Clear(); err != nil {
+		t.Fatalf("failed to clear tasks table: %v", err)
+	}
 	h := HandleTasks(s)
 
 	createReq := httptest.NewRequest(http.MethodPost, "/tasks", strings.NewReader(`{"title":"Learn tests"}`))
@@ -47,15 +53,21 @@ func TestHandleTasks_CreateThenList(t *testing.T) {
 }
 
 func TestHandleTasks_Create_InvalidJSON(t *testing.T) {
-    s := store.NewTaskStore()
-    h := HandleTasks(s)
+	s, err := store.NewTaskStore()
+	if err != nil {
+		t.Fatalf("failed to create TaskStore: %v", err)
+	}
+	if err := s.Clear(); err != nil {
+		t.Fatalf("failed to clear tasks table: %v", err)
+	}
+	h := HandleTasks(s)
 
-    req := httptest.NewRequest(http.MethodPost, "/tasks", strings.NewReader("{bad json"))
-    req.Header.Set("Content-Type", "application/json")
-    res := httptest.NewRecorder()
-    h(res, req)
+	req := httptest.NewRequest(http.MethodPost, "/tasks", strings.NewReader("{bad json"))
+	req.Header.Set("Content-Type", "application/json")
+	res := httptest.NewRecorder()
+	h(res, req)
 
-    if res.Code != http.StatusBadRequest {
-        t.Fatalf("expected %d, got %d", http.StatusBadRequest, res.Code)
-    }
+	if res.Code != http.StatusBadRequest {
+		t.Fatalf("expected %d, got %d", http.StatusBadRequest, res.Code)
+	}
 }
