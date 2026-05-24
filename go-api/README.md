@@ -42,6 +42,11 @@ Implemented and verified:
 - Explicit server startup error handling and graceful shutdown in `cmd/main.go`
 - Bruno request collection (`bruno/requests/`)
 
+Test coverage highlights:
+
+- Store: add/list, delete/list, complete, and not-found error behavior
+- Handlers: create/list happy path, invalid JSON, invalid ID format, not-found IDs, unsupported methods, and unsupported paths
+
 ---
 
 ## Current Phase Snapshot
@@ -63,7 +68,7 @@ Quick resume checklist for a new chat:
 4. Keep tests green:
 	- store tests in `internal/store/task_store_test.go`
 	- handler tests in `internal/handlers/tasks_test.go` with `net/http/httptest`
-5. Continue with concurrency patterns and transaction-focused refactors
+5. Continue with concurrency patterns and transaction-focused refactors when ready
 
 ---
 

@@ -42,6 +42,30 @@ func TestAddAndList(t *testing.T) {
 	}
 }
 
+func TestDeleteAndList(t *testing.T) {
+	s := newTestTaskStore(t)
+	first := s.Add("First Task")
+	second := s.Add("Second Task")
+	third := s.Add("Third Task")
+
+	if first.ID != 1 || second.ID != 2 || third.ID != 3 {
+		t.Fatalf("expectd IDs 1, 2, and 3, got %d, %d, and %d", first.ID, second.ID, third.ID)
+	}
+
+	if err := s.Delete(second.ID); err != nil {
+		t.Fatalf("expected delete to succeed, got %v", err)
+	}
+
+	tasks := s.List()
+	if len(tasks) != 2 {
+		t.Fatalf("expected 2 tasks, got %d", len(tasks))
+	}
+
+	if tasks[0].Title != "First Task" || tasks[1].Title != "Third Task" {
+		t.Fatalf("unexpected task order/titles: %+v", tasks)
+	}
+}
+
 func TestDeleteAndCompleteErrors(t *testing.T) {
 	s := newTestTaskStore(t)
 	task := s.Add("Only Task")

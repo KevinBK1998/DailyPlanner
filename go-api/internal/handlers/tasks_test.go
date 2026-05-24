@@ -78,3 +78,73 @@ func TestHandleTasks_Create_InvalidJSON(t *testing.T) {
 		t.Fatalf("expected %d, got %d", http.StatusBadRequest, res.Code)
 	}
 }
+
+func TestHandleTasks_Delete_NonexistentId(t *testing.T) {
+	s := newTestTaskStore(t)
+	h := HandleTasks(s)
+	req := httptest.NewRequest(http.MethodDelete, "/tasks/999", nil)
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusNotFound {
+		t.Fatalf("expected %d, got %d", http.StatusNotFound, res.Code)
+	}
+}
+
+func TestHandleTasks_Delete_InvalidId(t *testing.T) {
+	s := newTestTaskStore(t)
+	h := HandleTasks(s)
+	req := httptest.NewRequest(http.MethodDelete, "/tasks/abc", nil)
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusBadRequest {
+		t.Fatalf("expected %d, got %d", http.StatusBadRequest, res.Code)
+	}
+}
+func TestHandleTasks_Complete_NonexistentId(t *testing.T) {
+	s := newTestTaskStore(t)
+	h := HandleTasks(s)
+	req := httptest.NewRequest(http.MethodPut, "/tasks/999/complete", nil)
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusNotFound {
+		t.Fatalf("expected %d, got %d", http.StatusNotFound, res.Code)
+	}
+}
+
+func TestHandleTasks_Complete_InvalidId(t *testing.T) {
+	s := newTestTaskStore(t)
+	h := HandleTasks(s)
+	req := httptest.NewRequest(http.MethodPut, "/tasks/abc/complete", nil)
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusBadRequest {
+		t.Fatalf("expected %d, got %d", http.StatusBadRequest, res.Code)
+	}
+}
+
+func TestHandleTasks_UnsupportedMethod(t *testing.T) {
+	s := newTestTaskStore(t)
+	h := HandleTasks(s)
+	req := httptest.NewRequest(http.MethodPatch, "/tasks", nil)
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusMethodNotAllowed {
+		t.Fatalf("expected %d, got %d", http.StatusMethodNotAllowed, res.Code)
+	}
+}
+func TestHandleTasks_UnsupportedPath(t *testing.T) {
+	s := newTestTaskStore(t)
+	h := HandleTasks(s)
+	req := httptest.NewRequest(http.MethodGet, "/tasks/1/path", nil)
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusNotFound {
+		t.Fatalf("expected %d, got %d", http.StatusNotFound, res.Code)
+	}
+}
