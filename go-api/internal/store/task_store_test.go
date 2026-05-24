@@ -132,3 +132,50 @@ func TestAdd_Concurrent(t *testing.T) {
 		t.Fatalf("expected %d tasks, got %d", want, len(tasks))
 	}
 }
+
+func TestAddAndList_Concurrent(t *testing.T) {
+	s := newTestTaskStore(t)
+
+	const writerWorkers = 10
+	const readerWorkers = 10
+	const perWriter = 20
+
+	var wg sync.WaitGroup
+	errCh := make(chan error, writerWorkers*perWriter)
+
+	for w := 0; w < writerWorkers; w++ {
+		wg.Add(1)
+		go func(worker int) {
+			defer wg.Done()
+			for i := 0; i < perWriter; i++ {
+				task := s.Add(fmt.Sprintf("writer-%d-task-%d", worker, i))
+				if task.ID == 0 {
+					errCh <- fmt.Errorf("failed to add task for writer=%d: i=%d", worker, i)
+				}
+			}
+		}(w)
+	}
+
+	for r := 0; r < readerWorkers; r++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for i := 0; i < perWriter; i++ {
+				_ = s.List()
+			}
+		}()
+	}
+
+	wg.Wait()
+	close(errCh)
+
+	for err := range errCh {
+		t.Fatal(err)
+	}
+
+	tasks := s.List()
+	want := writerWorkers * perWriter
+	if len(tasks) != want {
+		t.Fatalf("expected %d tasks, got %d", want, len(tasks))
+	}
+}

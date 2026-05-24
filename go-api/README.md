@@ -47,6 +47,12 @@ Test coverage highlights:
 - Store: add/list, delete/list, complete, and not-found error behavior
 - Handlers: create/list happy path, invalid JSON, invalid ID format, not-found IDs, unsupported methods, and unsupported paths
 
+SQLite concurrency tuning:
+
+- `journal_mode = WAL` to improve read/write overlap behavior
+- `busy_timeout = 5000` to wait briefly on lock contention instead of failing fast
+- `SetMaxOpenConns(1)` and `SetMaxIdleConns(1)` to align with SQLite's single-writer model and avoid `SQLITE_BUSY` spikes under concurrent tests
+
 ---
 
 ## Current Phase Snapshot

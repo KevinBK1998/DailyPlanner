@@ -16,7 +16,7 @@ type TaskStore struct {
 }
 
 func NewTaskStore() (*TaskStore, error) {
-	return NewTaskStoreWithPath("tasks.db")
+	return NewTaskStoreWithPath("data/tasks.db")
 }
 
 func NewTaskStoreWithPath(dbPath string) (*TaskStore, error) {
@@ -30,6 +30,14 @@ func NewTaskStoreWithPath(dbPath string) (*TaskStore, error) {
 	db.SetMaxIdleConns(1)
 
 	if _, err = db.Exec(`PRAGMA busy_timeout = 5000`); err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+	if _, err = db.Exec(`PRAGMA journal_mode = WAL`); err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+	if _, err = db.Exec(`PRAGMA synchronous = NORMAL`); err != nil {
 		_ = db.Close()
 		return nil, err
 	}

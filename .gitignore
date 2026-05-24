@@ -9,4 +9,4 @@
 /rust-cli/data/
 
 # Go app data
-tasks.db
+/go-api/data/
