@@ -4,7 +4,7 @@ Phase 3 of the [DailyPlanner monorepo](../README.md).
 
 ## Status
 
-✨ In Progress (Phase 3A: HTML + CSS Foundation)
+✨ In Progress (Phase 3B started: JavaScript interactions)
 
 ## Quick Start
 
@@ -28,10 +28,26 @@ Completed:
 - [x] Scoped CSS selectors to avoid style bleed across unrelated elements
 - [x] Long task title handling to prevent layout overflow
 
+### Current Milestone: 3B JavaScript Foundation (Started)
+
+Completed:
+
+- [x] Added `app.js` and connected it to `index.html` with `defer`
+- [x] Form submit handler prevents page reload
+- [x] New task title is validated and appended to the DOM task list
+- [x] Form reset + focus return after successful submit
+
+Next in this milestone:
+
+- [ ] Checkbox toggle updates row state (`pending` <-> `completed`)
+- [ ] Delete action for task rows
+- [ ] Keep IDs unique and stable for dynamic tasks
+
 Current files:
 
 - index.html
 - styles.css
+- app.js
 
 ### Resume Point
 
@@ -39,14 +55,14 @@ If you are resuming in a new chat, continue from these checks:
 
 1. Verify current static UI in browser (desktop and narrow mobile width).
 2. Validate keyboard navigation order and focus rings.
-3. Keep CSS scoped and avoid global selectors unless intentional.
-4. Finish any remaining visual polish tasks for Phase 3A.
-5. Start Phase 3B by adding JavaScript interactions, then migrate to React + TypeScript.
+3. Submit a new task and confirm it appears in the task list.
+4. Keep CSS scoped and avoid global selectors unless intentional.
+5. Continue Phase 3B by wiring checkbox toggle behavior for dynamic and existing rows.
 
 ## Next Step
 
-Complete final static polish for Phase 3A, then begin Phase 3B:
+Continue Phase 3B with one small interaction step at a time:
 
-- Add task interactions (create, complete toggle, delete) in plain JavaScript first.
-- Introduce React component structure after behavior is clear.
-- Connect frontend actions to the Go API endpoints.
+- Add checkbox toggle behavior (`pending` -> `completed` and back).
+- Add delete behavior for task rows.
+- After core interactions are stable, move to React + TypeScript and API integration.

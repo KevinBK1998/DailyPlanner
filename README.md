@@ -14,7 +14,7 @@ A comprehensive multi-language, multi-platform todo ecosystem. Learn Rust, Go, J
 
 ### Phase 2: Backend Development (Go/Spring) ✅ **2A Completed, 2B Deferred**
 
-### Phase 3: Frontend Development (HTML/CSS) ✨ **Current Phase**
+### Phase 3: Frontend Development (3A Complete, 3B Started) ✨ **Current Phase**
 
 ---
 
@@ -65,7 +65,7 @@ daily_planner/
 │       └── go-api-release.yml
 ├── go-api/             # Phase 2A complete
 ├── java-api/           # Phase 2B target
-├── react-web/          # Phase 3A ✨ current
+├── react-web/          # Phase 3 (3A complete, 3B started) ✨ current
 ├── android-app/        # Phase 4 target
 └── README.md
 ```
@@ -136,6 +136,8 @@ Enterprise-grade backend with proven patterns.
 Build a clean, responsive static interface.
 
 **Current implementation:** semantic page structure, responsive task list/form layout, keyboard focus states, task status styling, and mobile polish in `react-web/index.html` + `react-web/styles.css`
+
+**Latest progress:** `react-web/app.js` now handles form submit, validates task title, and appends new pending tasks to the DOM
 
 **Features:**
 - Task list display
