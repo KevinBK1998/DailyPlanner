@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"strings"
 	"testing"
 
@@ -11,14 +12,26 @@ import (
 	"github.com/KevinBK1998/dailyplanner/go-api/internal/store"
 )
 
-func TestHandleTasks_CreateThenList(t *testing.T) {
-	s, err := store.NewTaskStore()
+func newTestTaskStore(t *testing.T) *store.TaskStore {
+	t.Helper()
+
+	dbPath := filepath.Join(t.TempDir(), "tasks.db")
+	s, err := store.NewTaskStoreWithPath(dbPath)
 	if err != nil {
 		t.Fatalf("failed to create TaskStore: %v", err)
 	}
-	if err := s.Clear(); err != nil {
-		t.Fatalf("failed to clear tasks table: %v", err)
-	}
+
+	t.Cleanup(func() {
+		if err := s.Close(); err != nil {
+			t.Fatalf("failed to close TaskStore: %v", err)
+		}
+	})
+
+	return s
+}
+
+func TestHandleTasks_CreateThenList(t *testing.T) {
+	s := newTestTaskStore(t)
 	h := HandleTasks(s)
 
 	createReq := httptest.NewRequest(http.MethodPost, "/tasks", strings.NewReader(`{"title":"Learn tests"}`))
@@ -53,13 +66,7 @@ func TestHandleTasks_CreateThenList(t *testing.T) {
 }
 
 func TestHandleTasks_Create_InvalidJSON(t *testing.T) {
-	s, err := store.NewTaskStore()
-	if err != nil {
-		t.Fatalf("failed to create TaskStore: %v", err)
-	}
-	if err := s.Clear(); err != nil {
-		t.Fatalf("failed to clear tasks table: %v", err)
-	}
+	s := newTestTaskStore(t)
 	h := HandleTasks(s)
 
 	req := httptest.NewRequest(http.MethodPost, "/tasks", strings.NewReader("{bad json"))

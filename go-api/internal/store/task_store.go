@@ -18,17 +18,26 @@ type TaskStore struct {
 }
 
 func NewTaskStore() (*TaskStore, error) {
-	db, err := sql.Open("sqlite", "tasks.db")
+	return NewTaskStoreWithPath("tasks.db")
+}
+
+func NewTaskStoreWithPath(dbPath string) (*TaskStore, error) {
+	db, err := sql.Open("sqlite", dbPath)
 	if err != nil {
 		return nil, err
 	}
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, title TEXT, status TEXT)`)
 	if err != nil {
+		_ = db.Close()
 		return nil, err
 	}
 	return &TaskStore{
 		tasks: db,
 	}, nil
+}
+
+func (s *TaskStore) Close() error {
+	return s.tasks.Close()
 }
 
 func (s *TaskStore) List() []models.Task {
@@ -112,12 +121,4 @@ func (s *TaskStore) Complete(id int) error {
 	}
 
 	return nil
-}
-
-func (s *TaskStore) Clear() error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	_, err := s.tasks.Exec(`DELETE FROM tasks`)
-	return err
 }

@@ -37,7 +37,9 @@ Implemented and verified:
 - `POST /tasks`
 - `DELETE /tasks/{id}`
 - `PUT /tasks/{id}/complete`
-- In-memory task store (`internal/store/task_store.go`)
+- SQLite-backed task store (`internal/store/task_store.go`) after migrating from the in-memory map version
+- Store and handler tests (`internal/store/task_store_test.go`, `internal/handlers/tasks_test.go`)
+- Explicit server startup error handling and graceful shutdown in `cmd/main.go`
 - Bruno request collection (`bruno/requests/`)
 
 ---
@@ -49,7 +51,7 @@ Phase: 2A (Go API)
 Resume point:
 
 - API routes are wired in `internal/handlers/tasks.go`
-- In-memory store logic is in `internal/store/task_store.go`
+- SQLite store logic is in `internal/store/task_store.go` (in-memory map implementation was the previous step)
 - Route registration is in `cmd/main.go`
 - Manual API verification is done via Bruno requests in `bruno/requests/`
 
@@ -58,10 +60,10 @@ Quick resume checklist for a new chat:
 1. Confirm server runs: `go run ./cmd/main.go`
 2. Confirm compile/test baseline: `go test ./...`
 3. Run Bruno flow: create -> complete -> delete -> get
-4. Add tests:
-	- store unit tests in `internal/store/task_store_test.go`
+4. Keep tests green:
+	- store tests in `internal/store/task_store_test.go`
 	- handler tests in `internal/handlers/tasks_test.go` with `net/http/httptest`
-5. Continue with SQLite persistence while keeping existing endpoints unchanged
+5. Continue with concurrency patterns and transaction-focused refactors
 
 ---
 
@@ -83,11 +85,13 @@ go-api/
 │       └── 05-complete-task.bru
 ├── internal/
 │   ├── handlers/
-│   │   └── tasks.go      # HTTP handler functions
+│   │   ├── tasks.go      # HTTP handler functions
+│   │   └── tasks_test.go # Handler tests
 │   ├── models/
 │   │   └── task.go       # Task struct
 │   └── store/
-│       └── task_store.go # In-memory task repository
+│       ├── task_store.go      # SQLite task repository
+│       └── task_store_test.go # Store tests
 └── go.mod
 ```
 
@@ -129,8 +133,9 @@ Use `params:path { id: ... }` in the delete/complete requests to target the task
 - JSON marshaling/unmarshaling (`encoding/json`)
 - HTTP method routing (`r.Method`)
 - Path parameter parsing with `strings.Split` + `strconv.Atoi`
-- Go maps and in-memory state
-- SQLite persistence (upcoming)
+- Go maps and in-memory state (initial implementation)
+- SQLite persistence
+- API/store testing with `testing` and `net/http/httptest`
 - Goroutines and concurrency patterns (upcoming)
 
 ---
@@ -156,4 +161,4 @@ CI workflow: [../.github/workflows/go-api-ci.yml](../.github/workflows/go-api-ci
 
 ## Next Step
 
-Move from in-memory store to SQLite-backed persistence while keeping the same HTTP API contract.
+Add transaction-based operations where needed and practice concurrency patterns while keeping the existing HTTP API contract.

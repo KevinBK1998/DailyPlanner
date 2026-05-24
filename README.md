@@ -95,9 +95,9 @@ Build a lightweight backend to expose todos via HTTP endpoints.
 
 See [go-api/README.md](go-api/README.md) for full details, endpoints, and learning goals.
 
-**Current implementation:** in-memory store + `net/http` handlers + Bruno request collection
+**Current implementation:** migrated from in-memory map store to SQLite-backed store + `net/http` handlers + tests + Bruno request collection
 
-**Tech:** Go, standard library (net/http), SQLite (next step)
+**Tech:** Go, standard library (net/http), SQLite
 
 ---
 

@@ -1,16 +1,30 @@
 package store
 
-import "testing"
+import (
+	"path/filepath"
+	"testing"
+)
 
-func TestAddAndList(t *testing.T) {
-	s, err := NewTaskStore()
+func newTestTaskStore(t *testing.T) *TaskStore {
+	t.Helper()
+
+	dbPath := filepath.Join(t.TempDir(), "tasks.db")
+	s, err := NewTaskStoreWithPath(dbPath)
 	if err != nil {
 		t.Fatalf("failed to create TaskStore: %v", err)
 	}
-	defer s.tasks.Close()
-	if _, err := s.tasks.Exec("DELETE FROM tasks"); err != nil {
-		t.Fatalf("failed to clear tasks table: %v", err)
-	}
+
+	t.Cleanup(func() {
+		if err := s.Close(); err != nil {
+			t.Fatalf("failed to close TaskStore: %v", err)
+		}
+	})
+
+	return s
+}
+
+func TestAddAndList(t *testing.T) {
+	s := newTestTaskStore(t)
 	first := s.Add("First Task")
 	second := s.Add("Second Task")
 
@@ -29,14 +43,7 @@ func TestAddAndList(t *testing.T) {
 }
 
 func TestDeleteAndCompleteErrors(t *testing.T) {
-	s, err := NewTaskStore()
-	if err != nil {
-		t.Fatalf("failed to create TaskStore: %v", err)
-	}
-	defer s.tasks.Close()
-	if _, err := s.tasks.Exec("DELETE FROM tasks"); err != nil {
-		t.Fatalf("failed to clear tasks table: %v", err)
-	}
+	s := newTestTaskStore(t)
 	task := s.Add("Only Task")
 
 	if err := s.Complete(task.ID); err != nil {
