@@ -6,7 +6,7 @@ Phase 2A of the [DailyPlanner monorepo](../README.md). A lightweight REST API bu
 
 ## Status
 
-🚧 **In Progress**
+✅ **Milestone Complete (Phase 2A)**
 
 ---
 
@@ -148,7 +148,7 @@ Use `params:path { id: ... }` in the delete/complete requests to target the task
 - Go maps and in-memory state (initial implementation)
 - SQLite persistence
 - API/store testing with `testing` and `net/http/httptest`
-- Goroutines and concurrency patterns (upcoming)
+- Goroutines and concurrency patterns (covered with concurrent store tests)
 
 ---
 
@@ -191,4 +191,7 @@ The workflow builds Linux and Windows binaries for `go-api/cmd/main.go` and publ
 
 ## Next Step
 
-Cut the first Go API release tag and publish binaries through the release workflow, then move to the next backend phase when ready.
+Phase 2A goals are complete. Continue with either:
+
+- Phase 2B (`java-api/`) for Spring Boot backend learning, or
+- Phase 3 (`react-web/`) to build the frontend and integrate with this API.
