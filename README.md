@@ -59,6 +59,8 @@ daily_planner/
 │   └── workflows/
 │       ├── rust-cli-ci.yml
 │       └── rust-cli-release.yml
+│       ├── go-api-ci.yml
+│       └── go-api-release.yml
 ├── go-api/             # Phase 2A ✨ current
 ├── java-api/           # Phase 2B target
 ├── react-web/          # Phase 3 target
@@ -79,10 +81,16 @@ daily_planner/
 
 - CI for Rust CLI: [.github/workflows/rust-cli-ci.yml](.github/workflows/rust-cli-ci.yml)
 - Tagged binary release: [.github/workflows/rust-cli-release.yml](.github/workflows/rust-cli-release.yml)
+- CI for Go API: [.github/workflows/go-api-ci.yml](.github/workflows/go-api-ci.yml)
+- Tagged binary release for Go API: [.github/workflows/go-api-release.yml](.github/workflows/go-api-release.yml)
 
 Release tag format for Rust CLI binaries:
 
 - `rust-cli-v*` (example: `rust-cli-v0.1.0`)
+
+Release tag format for Go API binaries:
+
+- `go-api-v*` (example: `go-api-v0.1.0`)
 
 ---
 
@@ -95,7 +103,7 @@ Build a lightweight backend to expose todos via HTTP endpoints.
 
 See [go-api/README.md](go-api/README.md) for full details, endpoints, and learning goals.
 
-**Current implementation:** migrated from in-memory map store to SQLite-backed store + `net/http` handlers + tests + Bruno request collection
+**Current implementation:** migrated from in-memory map store to SQLite-backed store + `net/http` handlers + tests (including concurrency coverage) + Bruno request collection + CI/release workflows
 
 **Tech:** Go, standard library (net/http), SQLite
 

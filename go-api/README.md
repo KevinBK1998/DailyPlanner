@@ -39,12 +39,13 @@ Implemented and verified:
 - `PUT /tasks/{id}/complete`
 - SQLite-backed task store (`internal/store/task_store.go`) after migrating from the in-memory map version
 - Store and handler tests (`internal/store/task_store_test.go`, `internal/handlers/tasks_test.go`)
+- Concurrent store tests for write-only and mixed read/write access
 - Explicit server startup error handling and graceful shutdown in `cmd/main.go`
 - Bruno request collection (`bruno/requests/`)
 
 Test coverage highlights:
 
-- Store: add/list, delete/list, complete, and not-found error behavior
+- Store: add/list, delete/list, complete, not-found error behavior, concurrent writes, and mixed read/write concurrency
 - Handlers: create/list happy path, invalid JSON, invalid ID format, not-found IDs, unsupported methods, and unsupported paths
 
 SQLite concurrency tuning:
@@ -166,10 +167,28 @@ Use `params:path { id: ... }` in the delete/complete requests to target the task
 
 ## CI
 
-CI workflow: [../.github/workflows/go-api-ci.yml](../.github/workflows/go-api-ci.yml) *(coming soon)*
+CI workflow: [../.github/workflows/go-api-ci.yml](../.github/workflows/go-api-ci.yml)
+
+It runs on push/PR changes for `go-api/**` and includes:
+
+- `gofmt` check
+- `go vet ./...`
+- `go test ./...`
+
+---
+
+## Release
+
+Release workflow: [../.github/workflows/go-api-release.yml](../.github/workflows/go-api-release.yml)
+
+Release trigger tag format:
+
+- `go-api-v*` (example: `go-api-v0.1.0`)
+
+The workflow builds Linux and Windows binaries for `go-api/cmd/main.go` and publishes them to a GitHub Release.
 
 ---
 
 ## Next Step
 
-Add transaction-based operations where needed and practice concurrency patterns while keeping the existing HTTP API contract.
+Cut the first Go API release tag and publish binaries through the release workflow, then move to the next backend phase when ready.
