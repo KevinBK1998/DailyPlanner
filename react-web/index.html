@@ -10,8 +10,10 @@
 
 <body>
     <main>
-        <h1>Daily Planner</h1>
-        <p>Plan clearly. Finish confidently.</p>
+        <header class="app-header">
+            <h1>Daily Planner</h1>
+            <p class="subtitle">Plan clearly. Finish confidently.</p>
+        </header>
         <section>
             <h2>Add a task</h2>
             <form aria-label="Add a new task">
@@ -22,10 +24,28 @@
         </section>
         <section>
             <h2>Today's tasks</h2>
-            <ul>
-                <li>Finish HTML structure</li>
-                <li>Set up GO API tests</li>
-                <li>Write CSS layout</li>
+            <ul class="task-list">
+                <li class="task-item pending">
+                    <input id="task-1" type="checkbox" aria-label="Mark task as complete" />
+                    <div class="task-content">
+                        <label class="task-title" for="task-1">Finish HTML structure</label>
+                        <span class="task-status">Pending</span>
+                    </div>
+                </li>
+                <li class="task-item completed">
+                    <input id="task-2" type="checkbox" aria-label="Mark task as complete" checked />
+                    <div class="task-content">
+                        <label class="task-title" for="task-2">Set up Go API tests</label>
+                        <span class="task-status">Completed</span>
+                    </div>
+                </li>
+                <li class="task-item pending">
+                    <input id="task-3" type="checkbox" aria-label="Mark task as complete" />
+                    <div class="task-content">
+                        <label class="task-title" for="task-3">Write CSS layout</label>
+                        <span class="task-status">Pending</span>
+                    </div>
+                </li>
             </ul>
         </section>
     </main>
