@@ -1,7 +1,9 @@
 package store
 
 import (
+	"fmt"
 	"path/filepath"
+	"sync"
 	"testing"
 )
 
@@ -94,5 +96,39 @@ func TestDeleteAndCompleteErrors(t *testing.T) {
 
 	if err := s.Complete(task.ID); err != ErrTaskNotFound {
 		t.Fatalf("expected ErrTaskNotFound on complete after delete, got %v", err)
+	}
+}
+
+func TestAdd_Concurrent(t *testing.T) {
+	s := newTestTaskStore(t)
+	const workers = 20
+	const perWorker = 10
+	var wg sync.WaitGroup
+	errCh := make(chan error, workers*perWorker)
+
+	for w := 0; w < workers; w++ {
+		wg.Add(1)
+		go func(worker int) {
+			defer wg.Done()
+			for i := 0; i < perWorker; i++ {
+				task := s.Add(fmt.Sprintf("w%d-task-%d", worker, i))
+				if task.ID == 0 {
+					errCh <- fmt.Errorf("failed to add task for worker=%d: i=%d", worker, i)
+				}
+			}
+		}(w)
+	}
+
+	wg.Wait()
+	close(errCh)
+
+	for err := range errCh {
+		t.Fatal(err)
+	}
+
+	tasks := s.List()
+	want := workers * perWorker
+	if len(tasks) != want {
+		t.Fatalf("expected %d tasks, got %d", want, len(tasks))
 	}
 }

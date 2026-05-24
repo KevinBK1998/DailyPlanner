@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"sync"
 
 	"github.com/KevinBK1998/dailyplanner/go-api/internal/models"
 	_ "modernc.org/sqlite"
@@ -13,7 +12,6 @@ import (
 var ErrTaskNotFound = errors.New("task not found")
 
 type TaskStore struct {
-	mu    sync.Mutex
 	tasks *sql.DB
 }
 
@@ -26,6 +24,16 @@ func NewTaskStoreWithPath(dbPath string) (*TaskStore, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// SQLite handles one writer at a time; keep one pooled connection and wait briefly on locks.
+	db.SetMaxOpenConns(1)
+	db.SetMaxIdleConns(1)
+
+	if _, err = db.Exec(`PRAGMA busy_timeout = 5000`); err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+
 	_, err = db.Exec(`CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, title TEXT, status TEXT)`)
 	if err != nil {
 		_ = db.Close()
@@ -41,8 +49,6 @@ func (s *TaskStore) Close() error {
 }
 
 func (s *TaskStore) List() []models.Task {
-	s.mu.Lock()
-	defer s.mu.Unlock()
 	rows, err := s.tasks.Query(`SELECT * FROM tasks ORDER BY id`)
 	if err != nil {
 		fmt.Printf("error querying tasks: %v\n", err)
@@ -62,8 +68,6 @@ func (s *TaskStore) List() []models.Task {
 }
 
 func (s *TaskStore) Add(title string) models.Task {
-	s.mu.Lock()
-	defer s.mu.Unlock()
 	res, err := s.tasks.Exec(`INSERT INTO tasks (title, status) VALUES (?, ?)`, title, "pending")
 	if err != nil {
 		fmt.Printf("error inserting task: %v\n", err)
@@ -82,8 +86,6 @@ func (s *TaskStore) Add(title string) models.Task {
 }
 
 func (s *TaskStore) Delete(id int) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
 	res, err := s.tasks.Exec(`DELETE FROM tasks WHERE id = ?`, id)
 	if err != nil {
 		fmt.Printf("error deleting task: %v\n", err)
@@ -103,8 +105,6 @@ func (s *TaskStore) Delete(id int) error {
 }
 
 func (s *TaskStore) Complete(id int) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
 	res, err := s.tasks.Exec(`UPDATE tasks SET status = ? WHERE id = ?`, "completed", id)
 	if err != nil {
 		fmt.Printf("error updating task: %v\n", err)
