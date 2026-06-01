@@ -1,0 +1,25 @@
+meta {
+  name: Update Task Title
+  type: http
+  seq: 6
+}
+
+patch {
+  url: {{baseUrl}}/tasks/:id
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+params:path {
+  id: 1
+}
+
+body:json {
+  {
+    "title": "Write Go CRUD (updated)"
+  }
+}

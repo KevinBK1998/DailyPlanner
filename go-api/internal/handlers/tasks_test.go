@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -23,6 +24,9 @@ func newTestTaskStore(t *testing.T) *store.TaskStore {
 
 	t.Cleanup(func() {
 		if err := s.Close(); err != nil {
+			if strings.Contains(err.Error(), "database is closed") {
+				return
+			}
 			t.Fatalf("failed to close TaskStore: %v", err)
 		}
 	})
@@ -188,12 +192,109 @@ func TestHandleTasks_Create_Patch(t *testing.T) {
 		t.Fatalf("expected %d, got %d", http.StatusNoContent, patchRes.Code)
 	}
 
-	tasks := s.List()
+	tasks, err := s.List()
+	if err != nil {
+		t.Fatalf("expected list to succeed, got %v", err)
+	}
 	if len(tasks) != 1 {
 		t.Fatalf("expected 1 task, got %d", len(tasks))
 	}
 	if tasks[0].Title != "Learn tests" {
 		t.Fatalf("expected title %q, got %q", "Learn tests", tasks[0].Title)
+	}
+}
+
+func TestHandleTasks_List_StoreErrorReturnsInternalServerError(t *testing.T) {
+	s := newTestTaskStore(t)
+	if err := s.Close(); err != nil {
+		t.Fatalf("failed to close TaskStore: %v", err)
+	}
+	h := HandleTasks(s)
+
+	req := httptest.NewRequest(http.MethodGet, "/tasks", nil)
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusInternalServerError {
+		t.Fatalf("expected %d, got %d", http.StatusInternalServerError, res.Code)
+	}
+}
+
+func TestHandleTasks_Create_StoreErrorReturnsInternalServerError(t *testing.T) {
+	s := newTestTaskStore(t)
+	if err := s.Close(); err != nil {
+		t.Fatalf("failed to close TaskStore: %v", err)
+	}
+	h := HandleTasks(s)
+
+	req := httptest.NewRequest(http.MethodPost, "/tasks", strings.NewReader(`{"title":"Learn tests"}`))
+	req.Header.Set("Content-Type", "application/json")
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusInternalServerError {
+		t.Fatalf("expected %d, got %d", http.StatusInternalServerError, res.Code)
+	}
+}
+
+func TestHandleTasks_Patch_StoreErrorReturnsInternalServerError(t *testing.T) {
+	s := newTestTaskStore(t)
+	task, err := s.Add("Learn tests")
+	if err != nil {
+		t.Fatalf("expected add to succeed, got %v", err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatalf("failed to close TaskStore: %v", err)
+	}
+	h := HandleTasks(s)
+
+	req := httptest.NewRequest(http.MethodPatch, "/tasks/"+strconv.Itoa(task.ID), strings.NewReader(`{"title":"Updated"}`))
+	req.Header.Set("Content-Type", "application/json")
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusInternalServerError {
+		t.Fatalf("expected %d, got %d", http.StatusInternalServerError, res.Code)
+	}
+}
+
+func TestHandleTasks_Delete_StoreErrorReturnsInternalServerError(t *testing.T) {
+	s := newTestTaskStore(t)
+	task, err := s.Add("Learn tests")
+	if err != nil {
+		t.Fatalf("expected add to succeed, got %v", err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatalf("failed to close TaskStore: %v", err)
+	}
+	h := HandleTasks(s)
+
+	req := httptest.NewRequest(http.MethodDelete, "/tasks/"+strconv.Itoa(task.ID), nil)
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusInternalServerError {
+		t.Fatalf("expected %d, got %d", http.StatusInternalServerError, res.Code)
+	}
+}
+
+func TestHandleTasks_Complete_StoreErrorReturnsInternalServerError(t *testing.T) {
+	s := newTestTaskStore(t)
+	task, err := s.Add("Learn tests")
+	if err != nil {
+		t.Fatalf("expected add to succeed, got %v", err)
+	}
+	if err := s.Close(); err != nil {
+		t.Fatalf("failed to close TaskStore: %v", err)
+	}
+	h := HandleTasks(s)
+
+	req := httptest.NewRequest(http.MethodPut, "/tasks/"+strconv.Itoa(task.ID)+"/complete", nil)
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusInternalServerError {
+		t.Fatalf("expected %d, got %d", http.StatusInternalServerError, res.Code)
 	}
 }
 

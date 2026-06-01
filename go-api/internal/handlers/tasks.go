@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strconv"
 	"strings"
@@ -38,7 +39,11 @@ func HandleTasks(taskStore *store.TaskStore) http.HandlerFunc {
 			}
 
 			if err := taskStore.Update(id, title); err != nil {
-				http.Error(w, "task not found", http.StatusNotFound)
+				if errors.Is(err, store.ErrTaskNotFound) {
+					http.Error(w, "task not found", http.StatusNotFound)
+					return
+				}
+				http.Error(w, "internal server error", http.StatusInternalServerError)
 				return
 			}
 
@@ -54,7 +59,11 @@ func HandleTasks(taskStore *store.TaskStore) http.HandlerFunc {
 			}
 
 			if err := taskStore.Delete(id); err != nil {
-				http.Error(w, "task not found", http.StatusNotFound)
+				if errors.Is(err, store.ErrTaskNotFound) {
+					http.Error(w, "task not found", http.StatusNotFound)
+					return
+				}
+				http.Error(w, "internal server error", http.StatusInternalServerError)
 				return
 			}
 
@@ -70,7 +79,11 @@ func HandleTasks(taskStore *store.TaskStore) http.HandlerFunc {
 			}
 
 			if err := taskStore.Complete(id); err != nil {
-				http.Error(w, "task not found", http.StatusNotFound)
+				if errors.Is(err, store.ErrTaskNotFound) {
+					http.Error(w, "task not found", http.StatusNotFound)
+					return
+				}
+				http.Error(w, "internal server error", http.StatusInternalServerError)
 				return
 			}
 
@@ -85,8 +98,14 @@ func HandleTasks(taskStore *store.TaskStore) http.HandlerFunc {
 
 		switch r.Method {
 		case http.MethodGet:
+			tasks, err := taskStore.List()
+			if err != nil {
+				http.Error(w, "internal server error", http.StatusInternalServerError)
+				return
+			}
+
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(taskStore.List())
+			json.NewEncoder(w).Encode(tasks)
 
 		case http.MethodPost:
 			var req createTaskRequest
@@ -102,7 +121,11 @@ func HandleTasks(taskStore *store.TaskStore) http.HandlerFunc {
 				return
 			}
 
-			task := taskStore.Add(title)
+			task, err := taskStore.Add(title)
+			if err != nil {
+				http.Error(w, "internal server error", http.StatusInternalServerError)
+				return
+			}
 
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusCreated)

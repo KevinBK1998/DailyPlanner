@@ -56,41 +56,41 @@ func (s *TaskStore) Close() error {
 	return s.tasks.Close()
 }
 
-func (s *TaskStore) List() []models.Task {
+func (s *TaskStore) List() ([]models.Task, error) {
 	rows, err := s.tasks.Query(`SELECT * FROM tasks ORDER BY id`)
 	if err != nil {
-		fmt.Printf("error querying tasks: %v\n", err)
-		return nil
+		return nil, fmt.Errorf("query tasks: %w", err)
 	}
 	defer rows.Close()
 	var tasks []models.Task
 	for rows.Next() {
 		var t models.Task
 		if err := rows.Scan(&t.ID, &t.Title, &t.Status); err != nil {
-			fmt.Printf("error scanning task: %v\n", err)
-			return nil
+			return nil, fmt.Errorf("scan task: %w", err)
 		}
 		tasks = append(tasks, t)
 	}
-	return tasks
+	if err := rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate tasks: %w", err)
+	}
+
+	return tasks, nil
 }
 
-func (s *TaskStore) Add(title string) models.Task {
+func (s *TaskStore) Add(title string) (models.Task, error) {
 	res, err := s.tasks.Exec(`INSERT INTO tasks (title, status) VALUES (?, ?)`, title, "pending")
 	if err != nil {
-		fmt.Printf("error inserting task: %v\n", err)
-		return models.Task{}
+		return models.Task{}, fmt.Errorf("insert task: %w", err)
 	}
 	id, err := res.LastInsertId()
 	if err != nil {
-		fmt.Printf("error getting last insert id: %v\n", err)
-		return models.Task{}
+		return models.Task{}, fmt.Errorf("get last insert id: %w", err)
 	}
 	return models.Task{
 		ID:     int(id),
 		Title:  title,
 		Status: "pending",
-	}
+	}, nil
 }
 
 func (s *TaskStore) Update(id int, title string) error {
