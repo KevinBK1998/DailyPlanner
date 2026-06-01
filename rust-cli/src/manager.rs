@@ -67,7 +67,8 @@ impl TodoManager {
         if let Some(parent) = std::path::Path::new(path).parent() {
             std::fs::create_dir_all(parent)?;
         }
-        let s = serde_json::to_string_pretty(&self.todos).unwrap();
+        let s = serde_json::to_string_pretty(&self.todos)
+            .map_err(|err| std::io::Error::other(format!("serialize todos: {err}")))?;
         std::fs::write(path, s)
     }
 
@@ -186,5 +187,27 @@ mod tests {
         assert!(ids.contains(&1));
         assert!(ids.contains(&2));
         let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn save_to_file_returns_error_when_target_is_directory() {
+        let mut mgr = TodoManager::new();
+        mgr.add_todo("one".to_string());
+
+        let dir = std::env::temp_dir().join(format!(
+            "daily_planner_save_as_dir_{}",
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_nanos()
+        ));
+        std::fs::create_dir_all(&dir).unwrap();
+
+        let dir_str = dir.to_str().unwrap();
+        let result = mgr.save_to_file(dir_str);
+
+        assert!(result.is_err());
+
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

@@ -6,6 +6,7 @@ Rust implementation of the Phase 1 todo manager.
 
 - Phase 1 (Rust CLI): ✅ Completed
 - Current capabilities: add, list, complete, delete, JSON persistence
+- Runtime error handling: graceful stdin/stdout and persistence error handling (no panic paths in runtime loop)
 - Test suite: parser tests + manager behavior tests + persistence tests
 
 ## Quick Start

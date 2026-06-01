@@ -24,12 +24,21 @@ func newTestTaskStore(t *testing.T) *store.TaskStore {
 
 	t.Cleanup(func() {
 		if err := s.Close(); err != nil {
-			if strings.Contains(err.Error(), "database is closed") {
-				return
-			}
 			t.Fatalf("failed to close TaskStore: %v", err)
 		}
 	})
+
+	return s
+}
+
+func newManualCloseTestTaskStore(t *testing.T) *store.TaskStore {
+	t.Helper()
+
+	dbPath := filepath.Join(t.TempDir(), "tasks.db")
+	s, err := store.NewTaskStoreWithPath(dbPath)
+	if err != nil {
+		t.Fatalf("failed to create TaskStore: %v", err)
+	}
 
 	return s
 }
@@ -205,7 +214,7 @@ func TestHandleTasks_Create_Patch(t *testing.T) {
 }
 
 func TestHandleTasks_List_StoreErrorReturnsInternalServerError(t *testing.T) {
-	s := newTestTaskStore(t)
+	s := newManualCloseTestTaskStore(t)
 	if err := s.Close(); err != nil {
 		t.Fatalf("failed to close TaskStore: %v", err)
 	}
@@ -221,7 +230,7 @@ func TestHandleTasks_List_StoreErrorReturnsInternalServerError(t *testing.T) {
 }
 
 func TestHandleTasks_Create_StoreErrorReturnsInternalServerError(t *testing.T) {
-	s := newTestTaskStore(t)
+	s := newManualCloseTestTaskStore(t)
 	if err := s.Close(); err != nil {
 		t.Fatalf("failed to close TaskStore: %v", err)
 	}
@@ -238,7 +247,7 @@ func TestHandleTasks_Create_StoreErrorReturnsInternalServerError(t *testing.T) {
 }
 
 func TestHandleTasks_Patch_StoreErrorReturnsInternalServerError(t *testing.T) {
-	s := newTestTaskStore(t)
+	s := newManualCloseTestTaskStore(t)
 	task, err := s.Add("Learn tests")
 	if err != nil {
 		t.Fatalf("expected add to succeed, got %v", err)
@@ -259,7 +268,7 @@ func TestHandleTasks_Patch_StoreErrorReturnsInternalServerError(t *testing.T) {
 }
 
 func TestHandleTasks_Delete_StoreErrorReturnsInternalServerError(t *testing.T) {
-	s := newTestTaskStore(t)
+	s := newManualCloseTestTaskStore(t)
 	task, err := s.Add("Learn tests")
 	if err != nil {
 		t.Fatalf("expected add to succeed, got %v", err)
@@ -279,7 +288,7 @@ func TestHandleTasks_Delete_StoreErrorReturnsInternalServerError(t *testing.T) {
 }
 
 func TestHandleTasks_Complete_StoreErrorReturnsInternalServerError(t *testing.T) {
-	s := newTestTaskStore(t)
+	s := newManualCloseTestTaskStore(t)
 	task, err := s.Add("Learn tests")
 	if err != nil {
 		t.Fatalf("expected add to succeed, got %v", err)
