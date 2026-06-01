@@ -12,7 +12,7 @@ Phase 2A of the [DailyPlanner monorepo](../README.md). A lightweight REST API bu
 
 ## Quick Start
 
-**Prerequisites:** Go 1.21+
+**Prerequisites:** Go 1.26.1+
 
 ```bash
 cd go-api

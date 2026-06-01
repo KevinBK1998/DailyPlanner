@@ -48,25 +48,10 @@ go test ./...
 
 ```
 daily_planner/
-├── rust-cli/
-│   ├── Cargo.toml
-│   ├── README.md
-│   ├── src/
-│   │   ├── main.rs
-│   │   ├── cli.rs
-│   │   ├── manager.rs
-│   │   └── models.rs
-│   └── data/
-├── .github/
-│   └── workflows/
-│       ├── rust-cli-ci.yml
-│       └── rust-cli-release.yml
-│       ├── go-api-ci.yml
-│       └── go-api-release.yml
-├── go-api/             # Phase 2A complete
-├── java-api/           # Phase 2B target
-├── react-web/          # Phase 3 (3A complete, 3B started) ✨ current
-├── android-app/        # Phase 4 target
+├── .github/            # CI and release workflows
+├── go-api/             # Phase 2A backend
+├── react-web/          # Phase 3 frontend (current)
+├── rust-cli/           # Phase 1 CLI (completed)
 └── README.md
 ```
 
@@ -98,6 +83,16 @@ Release tag format for Go API binaries:
 ---
 
 ## 🔮 Full Learning Roadmap
+
+### Phase 1: Foundations (CLI + Core Concepts) ✅ Completed
+
+Build a local-first todo manager to learn core systems programming concepts.
+
+See [rust-cli/README.md](rust-cli/README.md) for commands, architecture, and implementation notes.
+
+**Core topics covered:** ownership and borrowing, structs/enums, file I/O, and error handling.
+
+---
 
 ### Phase 2: Backend Development
 
@@ -358,51 +353,33 @@ Same UI/UX across:
 
 ---
 
-## 🔨 Current Phase (Phase 1: Rust CLI)
+## 🔨 Current Phase (Phase 3: Frontend Development)
 
 ### Prerequisites
-- [Rust installed](https://rustup.rs/)
-
-### Building
-```bash
-cargo build
-```
+- A modern web browser (Chrome, Edge, or Firefox)
+- Optional: VS Code Live Server extension for local static serving
 
 ### Running
 ```bash
-cargo run
+cd react-web
+# Open index.html directly in your browser
 ```
 
-### Cleaning
-```bash
-cargo clean
-```
+### Optional Local Server
+Use VS Code Live Server from the `react-web` folder to run the page on a local URL.
 
 ---
 
-## 📚 Project Structure
+## 🎓 What You'll Learn in Phase 3
 
-```
-daily_planner/
-├── Cargo.toml          # Project manifest
-├── src/
-│   └── main.rs         # Application code
-└── README.md           # This file
-```
-
----
-
-## 🎓 What You'll Learn in Phase 1
-
-This foundational project covers essential Rust concepts through hands-on implementation:
+This phase focuses on building an interactive frontend in small, practical steps:
 
 | Concept | Why It Matters |
 |---------|----------------|
-| **Ownership** | Rust's memory safety guarantee without a garbage collector |
-| **Borrowing** | Safe multi-reference patterns (& for immutable, &mut for mutable) |
-| **Structs** | Organizing related data together |
-| **Enums** | Type-safe alternatives to magic strings/numbers |
-| **Pattern Matching** | Safe, exhaustive conditional logic |
-| **File I/O** | Reading/writing persistent data |
-| **Error Handling** | Using `Result` and the `?` operator |
-| **Collections** | Managing groups of data with `Vec` |
+| **Semantic HTML** | Creates accessible, structured UI foundations |
+| **Responsive CSS** | Ensures the app works on desktop and mobile |
+| **DOM Manipulation** | Enables dynamic task rendering without reloads |
+| **Form Handling** | Supports reliable task creation and validation |
+| **State-Driven UI Thinking** | Prepares you for React component architecture |
+| **Accessibility Basics** | Improves keyboard navigation and usability |
+| **Progressive Enhancement** | Lets you ship working features incrementally |
