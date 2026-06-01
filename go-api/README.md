@@ -35,6 +35,7 @@ Implemented and verified:
 - `GET /health`
 - `GET /tasks`
 - `POST /tasks`
+- `PATCH /tasks/{id}`
 - `DELETE /tasks/{id}`
 - `PUT /tasks/{id}/complete`
 - SQLite-backed task store (`internal/store/task_store.go`) after migrating from the in-memory map version
@@ -94,7 +95,8 @@ go-api/
 │       ├── 02-get-tasks.bru
 │       ├── 03-create-task.bru
 │       ├── 04-delete-task.bru
-│       └── 05-complete-task.bru
+│       ├── 05-complete-task.bru
+│       └── 06-update-task-title.bru
 ├── internal/
 │   ├── handlers/
 │   │   ├── tasks.go      # HTTP handler functions
@@ -116,6 +118,7 @@ go-api/
 | `GET` | `/health` | Health check |
 | `GET` | `/tasks` | List all tasks |
 | `POST` | `/tasks` | Create a task |
+| `PATCH` | `/tasks/{id}` | Update a task title |
 | `DELETE` | `/tasks/{id}` | Delete a task |
 | `PUT` | `/tasks/{id}/complete` | Mark a task complete |
 
@@ -130,11 +133,12 @@ Request order for a full flow:
 1. `01-health`
 2. `02-get-tasks`
 3. `03-create-task`
-4. `05-complete-task`
-5. `04-delete-task`
-6. `02-get-tasks`
+4. `06-update-task-title`
+5. `05-complete-task`
+6. `04-delete-task`
+7. `02-get-tasks`
 
-Use `params:path { id: ... }` in the delete/complete requests to target the task ID you want.
+Use `params:path { id: ... }` in update/delete/complete requests to target the task ID you want.
 
 ---
 

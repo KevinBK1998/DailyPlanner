@@ -93,6 +93,24 @@ func (s *TaskStore) Add(title string) models.Task {
 	}
 }
 
+func (s *TaskStore) Update(id int, title string) error {
+	res, err := s.tasks.Exec(`UPDATE tasks SET title = ? WHERE id = ?`, title, id)
+	if err != nil {
+		fmt.Printf("error updating task: %v\n", err)
+		return err
+	}
+
+	rowsAffected, err := res.RowsAffected()
+	if err != nil {
+		fmt.Printf("error getting rows affected: %v\n", err)
+		return err
+	}
+	if rowsAffected == 0 {
+		return ErrTaskNotFound
+	}
+	return nil
+}
+
 func (s *TaskStore) Delete(id int) error {
 	res, err := s.tasks.Exec(`DELETE FROM tasks WHERE id = ?`, id)
 	if err != nil {

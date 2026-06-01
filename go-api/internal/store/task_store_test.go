@@ -44,6 +44,39 @@ func TestAddAndList(t *testing.T) {
 	}
 }
 
+func TestAddAndUpdate(t *testing.T) {
+	s := newTestTaskStore(t)
+	task := s.Add("First Task")
+
+	if task.ID != 1 {
+		t.Fatalf("expectd ID 1, got %d", task.ID)
+	}
+
+	tasks := s.List()
+	if len(tasks) != 1 {
+		t.Fatalf("expected 1 task, got %d", len(tasks))
+	}
+
+	if tasks[0].Title != "First Task" {
+		t.Fatalf("unexpected task order/titles: %+v", tasks)
+	}
+
+	if err := s.Update(task.ID, "Updated Task"); err != nil {
+		t.Fatalf("expected update to succeed, got %v", err)
+	}
+	tasks = s.List()
+	if len(tasks) != 1 {
+		t.Fatalf("expected 1 task, got %d", len(tasks))
+	}
+	if tasks[0].Title != "Updated Task" {
+		t.Fatalf("expected title %q, got %q", "Updated Task", tasks[0].Title)
+	}
+
+	if err := s.Update(999, "Nonexistent Task"); err != ErrTaskNotFound {
+		t.Fatalf("expected ErrTaskNotFound, got %v", err)
+	}
+}
+
 func TestDeleteAndList(t *testing.T) {
 	s := newTestTaskStore(t)
 	first := s.Add("First Task")

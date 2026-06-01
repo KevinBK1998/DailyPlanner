@@ -126,6 +126,77 @@ func TestHandleTasks_Complete_InvalidId(t *testing.T) {
 	}
 }
 
+func TestHandleTasks_Patch_InvalidId(t *testing.T) {
+	s := newTestTaskStore(t)
+	h := HandleTasks(s)
+	req := httptest.NewRequest(http.MethodPatch, "/tasks/abc", strings.NewReader(`{"title":"Learn test"}`))
+	req.Header.Set("Content-Type", "application/json")
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusBadRequest {
+		t.Fatalf("expected %d, got %d", http.StatusBadRequest, res.Code)
+	}
+}
+
+func TestHandleTasks_Patch_NonexistentId(t *testing.T) {
+	s := newTestTaskStore(t)
+	h := HandleTasks(s)
+	req := httptest.NewRequest(http.MethodPatch, "/tasks/999", strings.NewReader(`{"title":"Learn test"}`))
+	req.Header.Set("Content-Type", "application/json")
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusNotFound {
+		t.Fatalf("expected %d, got %d", http.StatusNotFound, res.Code)
+	}
+}
+
+func TestHandleTasks_Patch_InvalidJSON(t *testing.T) {
+	s := newTestTaskStore(t)
+	h := HandleTasks(s)
+
+	req := httptest.NewRequest(http.MethodPatch, "/tasks/999", strings.NewReader("{bad json"))
+	req.Header.Set("Content-Type", "application/json")
+	res := httptest.NewRecorder()
+	h(res, req)
+
+	if res.Code != http.StatusBadRequest {
+		t.Fatalf("expected %d, got %d", http.StatusBadRequest, res.Code)
+	}
+}
+
+func TestHandleTasks_Create_Patch(t *testing.T) {
+	s := newTestTaskStore(t)
+	h := HandleTasks(s)
+
+	createReq := httptest.NewRequest(http.MethodPost, "/tasks", strings.NewReader(`{"title":"Learn test"}`))
+	createReq.Header.Set("Content-Type", "application/json")
+	createRes := httptest.NewRecorder()
+	h(createRes, createReq)
+
+	if createRes.Code != http.StatusCreated {
+		t.Fatalf("expected %d, got %d", http.StatusCreated, createRes.Code)
+	}
+
+	patchReq := httptest.NewRequest(http.MethodPatch, "/tasks/1", strings.NewReader(`{"title":"Learn tests"}`))
+	patchReq.Header.Set("Content-Type", "application/json")
+	patchRes := httptest.NewRecorder()
+	h(patchRes, patchReq)
+
+	if patchRes.Code != http.StatusNoContent {
+		t.Fatalf("expected %d, got %d", http.StatusNoContent, patchRes.Code)
+	}
+
+	tasks := s.List()
+	if len(tasks) != 1 {
+		t.Fatalf("expected 1 task, got %d", len(tasks))
+	}
+	if tasks[0].Title != "Learn tests" {
+		t.Fatalf("expected title %q, got %q", "Learn tests", tasks[0].Title)
+	}
+}
+
 func TestHandleTasks_UnsupportedMethod(t *testing.T) {
 	s := newTestTaskStore(t)
 	h := HandleTasks(s)
