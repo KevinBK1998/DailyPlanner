@@ -155,7 +155,7 @@ button:hover {
 }
 
 .task-item.pending {
-    background: #f8fafc;
+    background: #93f59a;
 }
 
 .task-item.pending:hover {

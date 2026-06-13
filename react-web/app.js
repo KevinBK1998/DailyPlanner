@@ -3,6 +3,21 @@ const titleInput = document.querySelector('#task-title');
 const taskList = document.querySelector('.task-list');
 let nextTaskId = 4;
 
+taskList.addEventListener('change', (event) => {
+    const checkbox = event.target.closest('input[type="checkbox"]');
+    if (!checkbox) return;
+    const taskItem = checkbox.closest('.task-item');
+    if (!taskItem) return;
+
+    taskItem.classList.toggle('completed', checkbox.checked);
+    taskItem.classList.toggle('pending', !checkbox.checked);
+
+    const status = taskItem.querySelector('.task-status');
+    if (status) {
+        status.textContent = checkbox.checked ? 'Completed' : 'Pending';
+    }
+});
+
 form.addEventListener('submit', (event) => {
     event.preventDefault();
 
